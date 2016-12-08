@@ -157,11 +157,11 @@ public class ETUtils {
 	        Method m = itemWandCasting.getMethod("consumeAllVis", ItemStack.class,EntityPlayer.class,AspectList.class,boolean.class,boolean.class);
 	        m.setAccessible(true);
 	        boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
-	        int ubMRU = Integer.parseInt(DummyDataUtils.getDataForPlayer(p.getDisplayName(), "essentialcraft", "ubmruEnergy"));
+	        int ubMRU = ECUtils.getData(p).getPlayerUBMRU();
 	        if(ubMRU >= mruDrained)
 	        {
 	        	ubMRU -= mruDrained;
-	        	DummyDataUtils.setDataForPlayer(p.getDisplayName(), "essentialcraft", "ubmruEnergy", Integer.toString(ubMRU));
+	        	ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	float flt = (float)mruDrained/1000F;
 	        	if(p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
 	        	{
