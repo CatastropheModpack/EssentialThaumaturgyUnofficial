@@ -86,6 +86,7 @@ public class ItemFocusMRUFortification extends ItemFocusBasic{
 				{
 					player.swingItem();
 					world.setBlock(bX, bY, bZ, Block.getBlockFromItem(getIS("block:fortifiedStone",0).getItem()), 0, 3);
+					world.playSoundAtEntity(player, "thaumcraft:ice", 0.3F, 0.8F + world.rand.nextFloat() * 0.1F);
 				}
 			}
 			if(blk == Blocks.glass)
@@ -94,6 +95,7 @@ public class ItemFocusMRUFortification extends ItemFocusBasic{
 				{
 					player.swingItem();
 					world.setBlock(bX, bY, bZ, Block.getBlockFromItem(getIS("block:fortifiedGlass",0).getItem()), 0, 3);
+					world.playSoundAtEntity(player, "thaumcraft:ice", 0.3F, 0.8F + world.rand.nextFloat() * 0.1F);
 				}
 			}
 		}
