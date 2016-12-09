@@ -156,10 +156,10 @@ public class ETUtils {
 	        Object wand = item.getItem();
 	        Method m = itemWandCasting.getMethod("consumeAllVis", ItemStack.class,EntityPlayer.class,AspectList.class,boolean.class,boolean.class);
 	        m.setAccessible(true);
-	        boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
 	        int ubMRU = ECUtils.getData(p).getPlayerUBMRU();
 	        if(ubMRU >= mruDrained)
 	        {
+	       		boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
 	        	ubMRU -= mruDrained;
 	        	ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	float flt = (float)mruDrained/1000F;
