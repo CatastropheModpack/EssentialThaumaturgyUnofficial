@@ -163,7 +163,7 @@ public class ETUtils {
 	        	ubMRU -= mruDrained;
 	        	ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	float flt = (float)mruDrained/1000F;
-	        	if(p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
+	        	if(retBool_0 && p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
 	        	{
 	        		int effectToAdd = p.worldObj.rand.nextInt(3);
 	        		switch(effectToAdd)
@@ -196,7 +196,7 @@ public class ETUtils {
 	        			{
 	        				p.addPotionEffect(new PotionEffect(Potion.hunger.id,100,3));
 	        				p.addPotionEffect(new PotionEffect(Potion.wither.id,100,3));
-	        				p.addChatMessage(new ChatComponentText(EnumChatFormatting.ITALIC+""+EnumChatFormatting.DARK_PURPLE+StatCollector.translateToLocal("warp.text.15")));
+	        				p.addChatMessage(new ChatComponentText(EnumChatFormatting.ITALIC+""+EnumChatFormatting.DARK_PURPLE+StatCollector.translateToLocal("et.effectwither.text")));
 	        				break;
 	        			}
 	        		}
