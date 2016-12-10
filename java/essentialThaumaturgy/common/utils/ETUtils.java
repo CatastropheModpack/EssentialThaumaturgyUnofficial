@@ -196,7 +196,7 @@ public class ETUtils {
 	        			{
 	        				p.addPotionEffect(new PotionEffect(Potion.hunger.id,100,3));
 	        				p.addPotionEffect(new PotionEffect(Potion.wither.id,100,3));
-	        				p.addChatMessage(new ChatComponentText(EnumChatFormatting.ITALIC+""+EnumChatFormatting.DARK_PURPLE+StatCollector.translateToLocal("et.effectwither.text")));
+	        				p.addChatMessage(new ChatComponentText("\u00a75\u00a7o"+StatCollector.translateToLocal("et.effectwither.text")));
 	        				break;
 	        			}
 	        		}
