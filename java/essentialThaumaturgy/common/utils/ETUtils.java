@@ -182,7 +182,7 @@ public class ETUtils {
 	        				int amplifier = currentDuration / 1200;
 	        				p.removePotionEffect(p.getActivePotionEffect((Potion) potion).getPotionID());
 	        				p.addPotionEffect(new PotionEffect(((Potion)potion).id,currentDuration,amplifier));
-	        				return retBool_0;
+	        				break;
 	        			}
 	        			case 1:
 	        			{
@@ -190,16 +190,21 @@ public class ETUtils {
 	        				Method addWarp = thaumcraftMainCls.getMethod("addWarpToPlayer", EntityPlayer.class,int.class,boolean.class);
 	        				addWarp.setAccessible(true);
 	        				addWarp.invoke(null, p,3+p.worldObj.rand.nextInt(5),true);
-	        				return retBool_0;
+	        				break;
 	        			}
 	        			case 2:
 	        			{
 	        				p.addPotionEffect(new PotionEffect(Potion.hunger.id,100,3));
 	        				p.addPotionEffect(new PotionEffect(Potion.wither.id,100,3));
 	        				p.addChatMessage(new ChatComponentText(EnumChatFormatting.ITALIC+""+EnumChatFormatting.DARK_PURPLE+StatCollector.translateToLocal("warp.text.15")));
-	        				return retBool_0;
+	        				break;
 	        			}
 	        		}
+	        	}
+			if(!retBool_0)
+	        	{
+	        		ubMRU += mruDrained;
+	        		ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	}
 	        	return retBool_0;
 	        }else
