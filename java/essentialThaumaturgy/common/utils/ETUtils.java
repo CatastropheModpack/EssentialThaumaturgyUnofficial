@@ -163,7 +163,7 @@ public class ETUtils {
 	        	ubMRU -= mruDrained;
 	        	ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	float flt = (float)mruDrained/1000F;
-	        	if(p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
+	        	if(retBool_0 && p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
 	        	{
 	        		int effectToAdd = p.worldObj.rand.nextInt(3);
 	        		switch(effectToAdd)
