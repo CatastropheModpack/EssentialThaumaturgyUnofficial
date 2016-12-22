@@ -80,7 +80,7 @@ public class ItemFocusMRUTeleportation extends ItemFocusBasic{
         	if(!world.isRemote)
         		world.spawnEntityInWorld(new EntityEnderPearl(world, player));
         	player.swingItem();
-		world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
+        	world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
         }
 
 		return itemstack;

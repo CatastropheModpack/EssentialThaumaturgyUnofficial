@@ -22,21 +22,19 @@ import net.minecraftforge.common.util.ForgeDirection;
 import ec3.api.ITEHasMRU;
 import ec3.api.ITERequiresMRU;
 
-public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer, IEssentiaTransport{
+public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer, IEssentiaTransport {
 
 	public AspectList aspects = new AspectList();
 	public int maxAspects = 64;
 	
 	@Override
-    public void readFromNBT(NBTTagCompound i)
-    {
+    public void readFromNBT(NBTTagCompound i) {
 		super.readFromNBT(i);
 		aspects.readFromNBT(i);
     }
 	
 	@Override
-    public void writeToNBT(NBTTagCompound i)
-    {
+    public void writeToNBT(NBTTagCompound i) {
     	super.writeToNBT(i);
 		aspects.writeToNBT(i);
     }
@@ -57,9 +55,7 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 	}
 
 	@Override
-	public void setSuction(Aspect aspect, int amount) {
-		
-	}
+	public void setSuction(Aspect aspect, int amount) {}
 
 	@Override
 	public Aspect getSuctionType(ForgeDirection face) {
@@ -73,7 +69,6 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public int takeEssentia(Aspect aspect, int amount, ForgeDirection face) {
-		
 		return !takeFromContainer(aspect,amount) ? 0 : amount;
 	}
 
@@ -84,19 +79,12 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public Aspect getEssentiaType(ForgeDirection face) {
-		if(this.aspects.size() != 0)
-		{
-			return this.aspects.getAspectsSortedAmount()[0];
-		}
-		return null;
+		return aspects.size() != 0 ? aspects.getAspectsSortedAmount()[0] : null;
 	}
 
 	@Override
 	public int getEssentiaAmount(ForgeDirection face) {
-		if(this.aspects.size() != 0)
-			return this.aspects.getAmount(this.aspects.getAspectsSortedAmount()[0]);
-		else
-			return 0;
+		return aspects.size() != 0 ? aspects.getAmount(aspects.getAspectsSortedAmount()[0]) : 0;
 	}
 
 	@Override
@@ -111,13 +99,12 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public AspectList getAspects() {
-		return this.aspects;
+		return aspects;
 	}
 
 	@Override
 	public void setAspects(AspectList aspects) {
 		this.aspects = aspects;
-		
 	}
 
 	@Override
@@ -129,26 +116,21 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 	public int addToContainer(Aspect tag, int amount) {
 		if(amount > maxAspects)
 			amount = maxAspects;
-		if(this.aspects.getAmount(tag) == 0)
-		{
-			this.aspects.add(tag, amount);
+		if(aspects.getAmount(tag) == 0) {
+			aspects.add(tag, amount);
 			return 0;
-		}else
-		{
-			if(this.aspects.getAmount(tag)+amount < maxAspects)
-			{
-				this.aspects.merge(tag, this.aspects.getAmount(tag)+amount);
-				return 0;
-			}
+		}
+		else if(aspects.getAmount(tag) + amount < maxAspects) {
+			aspects.merge(tag, aspects.getAmount(tag) + amount);
+			return 0;
 		}
 		return amount;
 	}
 
 	@Override
 	public boolean takeFromContainer(Aspect tag, int amount) {
-		if(this.aspects.getAmount(tag) > 0 && this.aspects.getAmount(tag)-amount >= 0)
-		{
-			this.aspects.reduce(tag, amount);
+		if(aspects.getAmount(tag) > 0 && aspects.getAmount(tag)-amount >= 0) {
+			aspects.reduce(tag, amount);
 			return true;
 		}
 		return false;
@@ -156,11 +138,9 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public boolean takeFromContainer(AspectList ot) {
-		if(this.doesContainerContain(ot))
-		{
-			for(Aspect apt : ot.getAspectsSortedAmount())
-			{
-				this.takeFromContainer(apt, ot.getAmount(apt));
+		if(doesContainerContain(ot)) {
+			for(Aspect apt : ot.getAspectsSortedAmount()) {
+				takeFromContainer(apt, ot.getAmount(apt));
 			}
 		}
 		return false;
@@ -168,15 +148,14 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public boolean doesContainerContainAmount(Aspect tag, int amount) {
-		return this.aspects.getAmount(tag) == amount;
+		return aspects.getAmount(tag) == amount;
 	}
 
 	@Override
 	public boolean doesContainerContain(AspectList ot) {
-		for(int o = 0; o < ot.size(); ++o)
-		{
+		for(int o = 0; o < ot.size(); ++o) {
 			Aspect apt = ot.getAspectsSortedAmount()[o];
-			if(this.aspects.getAmount(apt) == 0)
+			if(aspects.getAmount(apt) == 0)
 				return false;
 		}
 		return true;
@@ -184,6 +163,6 @@ public class TileHasMRUAndAspects extends TileHasMRU implements IAspectContainer
 
 	@Override
 	public int containerContains(Aspect tag) {
-		return this.aspects.getAmount(tag);
+		return aspects.getAmount(tag);
 	}
 }

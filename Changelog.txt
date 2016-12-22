@@ -1,3 +1,16 @@
+1.1.1710.13Unofficial
+    +Changed: Wand foci can now drain MRU out of MRU storages.
+    +Changed: Some TileEntities will now have better slot handling.
+    
+    -Fixed: MRU Movement Focus texture
+    
+    =Partial code cleanup
+
+1.1.1710.12Unofficial
+    +Changed: The teleportation focus and the fortification focus now has sound effects.
+    
+    -Fixed: Made all the foci work properly.
+
 1.1.1710.0
 	+Added Flux Wiper
 	+Added MRUCU Absorber

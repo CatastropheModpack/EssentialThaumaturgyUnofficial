@@ -9,6 +9,7 @@ import DummyCore.Utils.MathUtils;
 import DummyCore.Utils.MiscUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import ec3.common.item.ItemsCore;
 import essentialThaumaturgy.common.init.AspectsInit;
 import essentialThaumaturgy.common.utils.ETUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,13 +23,13 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aspects.IEssentiaTransport;
+import thaumcraft.common.items.wands.ItemWandCasting;
 
-public class TileMRUWandCharger extends TileHasMRUReqAspects{
+public class TileMRUWandCharger extends TileHasMRUReqAspects {
 	
-	public TileMRUWandCharger()
-	{
-		this.setMaxMRU(5000F);
-		this.setSlotsNum(2);
+	public TileMRUWandCharger() {
+		setMaxMRU(5000F);
+		setSlotsNum(2);
 	}
 	
 	@Override
@@ -43,17 +44,14 @@ public class TileMRUWandCharger extends TileHasMRUReqAspects{
 
 	
 	@Override
-	public void updateEntity()
-	{
+	public void updateEntity() {
 		super.updateEntity();
-		ItemStack wand = this.getStackInSlot(1);
-		if(wand != null && this.getMRU() - 50 > 0)
-			try
-			{
+		ItemStack wand = getStackInSlot(1);
+		if(wand != null && getMRU() > 50) {
+			try {
 				Class itemCls = wand.getItem().getClass();
 				Class wandCls = Class.forName("thaumcraft.common.items.wands.ItemWandCasting");
-				if(itemCls == wandCls)
-				{
+				if(itemCls == wandCls) {
 					NBTTagCompound tg = MiscUtils.getStackTag(wand);
 					Method getMaxVis = wandCls.getMethod("getMaxVis", ItemStack.class);
 					int aspectCap = Integer.parseInt(getMaxVis.invoke(wand.getItem(), wand).toString());
@@ -64,60 +62,58 @@ public class TileMRUWandCharger extends TileHasMRUReqAspects{
 					int entropy = tg.getInteger("perditio");
 					int order = tg.getInteger("ordo");
 					
-					if(fire * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(fire * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++fire;
 						tg.setInteger("ignis", fire);
 						return;
 					}
 					
-					if(water * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(water * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++water;
 						tg.setInteger("aqua", water);
 						return;
 					}
 					
-					if(earth * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(earth * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++earth;
 						tg.setInteger("terra", earth);
 						return;
 					}
 					
-					if(air * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(air * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++air;
 						tg.setInteger("aer", air);
 						return;
 					}
 					
-					if(order * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(order * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++order;
 						tg.setInteger("ordo", order);
 						return;
 					}
 					
-					if(entropy * 2 < aspectCap && this.getMRU() - 10 > 0)
-					{
-						this.setMRU(this.getMRU()-10);
+					if(entropy * 2 < aspectCap && getMRU() > 10) {
+						setMRU(getMRU() - 10);
 						++entropy;
 						tg.setInteger("perditio", entropy);
 						return;
 					}
 				}
-			}catch(Exception e)
-			{
-				e.printStackTrace();return;
 			}
+			catch(Exception e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
-
 	
-	
+	@Override
+	public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
+		return p_94041_1_ == 0 ? isBoundGem(p_94041_2_) : p_94041_2_.getItem() instanceof ItemWandCasting;
+	}
 }

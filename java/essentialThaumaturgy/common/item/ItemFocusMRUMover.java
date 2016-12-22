@@ -21,33 +21,27 @@ import thaumcraft.api.wands.ItemFocusBasic;
 
 public class ItemFocusMRUMover extends ItemFocusBasic{
 
-    public String getSortingHelper(ItemStack itemstack)
-    {
+    public String getSortingHelper(ItemStack itemstack) {
         return (new StringBuilder()).append("MRUM").append(super.getSortingHelper(itemstack)).toString();
     }
     
-    public int getFocusColor()
-    {
+    public int getFocusColor() {
         return 0x5f2180;
     }
     
-    public AspectList getVisCost()
-    {
+    public AspectList getVisCost() {
         return cost;
     }
     
-    public boolean isVisCostPerTick()
-    {
+    public boolean isVisCostPerTick() {
         return true;
     }
     
-    public WandFocusAnimation getAnimation()
-    {
+    public WandFocusAnimation getAnimation() {
         return WandFocusAnimation.CHARGE;
     }
     
-    public boolean acceptsEnchant(int id)
-    {
+    public boolean acceptsEnchant(int id) {
     	return false;
     }
     

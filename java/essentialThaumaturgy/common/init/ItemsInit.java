@@ -54,8 +54,7 @@ public class ItemsInit {
 	
 	
 	
-	public static void init()
-	{
+	public static void init() {
 		chaosGem = registerItemSimple(chaosGem,Item.class,"gemChaos","gem_chaos",0,false,64);
 		frozenGem = registerItemSimple(frozenGem,Item.class,"gemFrozen","gem_frozen",0,false,64);
 		monocleOfRevealing = new ItemMonocle(ArmorMaterial.CHAIN, 0, 0).setUnlocalizedName("essenthaum.monocle").setTextureName("essenthaum:monoclerevealing");
@@ -95,10 +94,8 @@ public class ItemsInit {
 		WAND_CAP_MRU.setTexture(new ResourceLocation("essenthaum","textures/misc/wand_cap_mru.png"));
 	}
 	
-	public static Item registerItemSimple(Item i, Class<?extends Item> itemClass, String name, String textureName, int damage, boolean full3D, int stackSize)
-	{
-		try
-		{
+	public static Item registerItemSimple(Item i, Class<? extends Item> itemClass, String name, String textureName, int damage, boolean full3D, int stackSize) {
+		try {
 			i = itemClass.newInstance().setUnlocalizedName("essenthaum."+name).setTextureName("essenthaum:"+textureName).setMaxDamage(damage).setMaxStackSize(stackSize);
 			if(full3D)
 				i.setFull3D();
@@ -107,14 +104,12 @@ public class ItemsInit {
 			return i;
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	public static int getIdForItem()
-	{
+	public static int getIdForItem() {
 		return ++increasement;
 	}
 	

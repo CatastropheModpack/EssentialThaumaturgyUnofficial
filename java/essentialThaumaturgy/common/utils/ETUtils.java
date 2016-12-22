@@ -7,11 +7,14 @@ import java.util.List;
 
 import baubles.api.BaublesApi;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import ec3.api.IMRUStorage;
+import ec3.utils.common.ECUtils;
 import essentialThaumaturgy.common.core.EssentialThaumaturgy;
 import essentialThaumaturgy.common.init.ItemsInit;
 import DummyCore.Utils.DummyDataUtils;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -38,56 +41,42 @@ public class ETUtils {
 	
 	public static TicketHandler handler;
 	
-	public static TicketHandler getTHObj()
-	{
+	public static TicketHandler getTHObj() {
 		if(handler == null)
 			handler = INSTANCE.new TicketHandler();
 		return handler;
 	}
 	
-	public ETUtils()
-	{
+	public ETUtils() {
 		handler = new TicketHandler();
 	}
 	
-	public class TicketHandler implements LoadingCallback
-	{
+	public class TicketHandler implements LoadingCallback {
 
 		@Override
-		public void ticketsLoaded(List<Ticket> tickets, World world) {
-			
-		}
+		public void ticketsLoaded(List<Ticket> tickets, World world) {}
 		
 	}
 	
 	@SubscribeEvent
-	public void onWorldLoaded(WorldEvent.Load event)
-	{
+	public void onWorldLoaded(WorldEvent.Load event) {
 		World w = event.world;
-		if(w != null && !w.isRemote)
-		{
+		if(w != null && !w.isRemote) {
 			if(!etTickets.containsKey(w.provider.dimensionId))
-			{
 				etTickets.put(w.provider.dimensionId, ForgeChunkManager.requestTicket(EssentialThaumaturgy.core, w, Type.NORMAL));
-			}
 		}
 	}
 	
 	@SubscribeEvent
-	public void onPlayerDeath(LivingHurtEvent event)
-	{
+	public void onPlayerDeath(LivingHurtEvent event) {
 		EntityLivingBase base = event.entityLiving;
-		if(base instanceof EntityPlayer)
-		{
+		if(base instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) base;
-			if(event.ammount >= player.getHealth())
-			{
+			if(event.ammount >= player.getHealth()) {
 				IInventory inv = BaublesApi.getBaubles(player);
-				for(int i = 0; i < inv.getSizeInventory(); ++i)
-				{
+				for(int i = 0; i < inv.getSizeInventory(); ++i) {
 					ItemStack stk = inv.getStackInSlot(i);
-					if(stk != null && stk.getItem() == ItemsInit.shade_protector)
-					{
+					if(stk != null && stk.getItem() == ItemsInit.shade_protector) {
 						inv.setInventorySlotContents(i, null);
 						player.heal(player.getMaxHealth());
 						event.setCanceled(true);
@@ -99,120 +88,107 @@ public class ETUtils {
 	}
 	
 	@SubscribeEvent
-	public void onWorldUnloaded(WorldEvent.Unload event)
-	{
-		try
-		{
-		for(Ticket t : etTickets.values())
-		{	
-			if(t != null)
-				ForgeChunkManager.releaseTicket(t);
+	public void onWorldUnloaded(WorldEvent.Unload event) {
+		try {
+			for(Ticket t : etTickets.values()) {	
+				if(t != null)
+					ForgeChunkManager.releaseTicket(t);
+			}
+			etTickets.clear();
 		}
-		etTickets.clear();
-		}catch(Exception e)
-		{
+		catch(Exception e) {
 			return;
 		}
 	}
 	
-	public static Ticket getTicketForDimension(int dimID)
-	{
+	public static Ticket getTicketForDimension(int dimID) {
 		return etTickets.get(dimID);
 	}
 	
-	public static boolean requestChunkLoading(int chunkX, int chunkZ, int dimID)
-	{
+	public static boolean requestChunkLoading(int chunkX, int chunkZ, int dimID) {
 		Ticket t = getTicketForDimension(dimID);
-		if(t != null)
-		{
+		if(t != null) {
 			//And yes, I know, that you can force chunkloading as many times as you want - it does not matter, but, guess what? A safe check is never a bad thing!
-			for(ChunkCoordIntPair pair : t.getChunkList())
-			{
+			for(ChunkCoordIntPair pair : t.getChunkList()) {
 				if(pair.chunkXPos == chunkX && pair.chunkZPos == chunkZ)
-				{
 					return false;
-				}
 			}
 			ForgeChunkManager.forceChunk(t, new ChunkCoordIntPair(chunkX,chunkZ));
-		}else
-		{
-			return false;
 		}
+		else
+			return false;
 		return true;
 	}
 	
-	public static void requestChunkUnloading(int chunkX, int chunkZ, int dimID)
-	{
+	public static void requestChunkUnloading(int chunkX, int chunkZ, int dimID) {
 		Ticket t = getTicketForDimension(dimID);
 		if(t != null)
 			ForgeChunkManager.unforceChunk(t, new ChunkCoordIntPair(chunkX,chunkZ));
 	}
 	
-	public static boolean fociDrainAspectsAndMRU(ItemStack item,EntityPlayer p,AspectList aspects,int mruDrained,boolean doDrain,boolean isRemote)
-	{
-		try
-		{
+	public static boolean fociDrainAspectsAndMRU(ItemStack item, EntityPlayer p, AspectList aspects, int mruDrained, boolean doDrain, boolean isRemote) {
+		try {
 	        Class itemWandCasting = Class.forName("thaumcraft.common.items.wands.ItemWandCasting");
 	        Object wand = item.getItem();
-	        Method m = itemWandCasting.getMethod("consumeAllVis", ItemStack.class,EntityPlayer.class,AspectList.class,boolean.class,boolean.class);
+	        Method m = itemWandCasting.getMethod("consumeAllVis", ItemStack.class, EntityPlayer.class, AspectList.class, boolean.class, boolean.class);
 	        m.setAccessible(true);
+	        
+	        if(EssentialThaumaturgy.shouldUseMRUInStorage && ECUtils.tryToDecreaseMRUInStorage(p, -mruDrained)) {
+	        	boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
+	        	if(retBool_0)
+	        		return true;
+	        	else
+	        		ECUtils.tryToDecreaseMRUInStorage(p, mruDrained);
+	        }
+	        
 	        int ubMRU = ECUtils.getData(p).getPlayerUBMRU();
-	        if(ubMRU >= mruDrained)
-	        {
-	       		boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
+	        if(ubMRU >= mruDrained) {
+	        	boolean retBool_0 = Boolean.parseBoolean(m.invoke(wand, item, p, aspects, true, false).toString());
 	        	ubMRU -= mruDrained;
 	        	ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	float flt = (float)mruDrained/1000F;
-	        	if(retBool_0 && p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote)
-	        	{
+	        	if(retBool_0 && p.worldObj.rand.nextFloat() < flt && !p.worldObj.isRemote) {
 	        		int effectToAdd = p.worldObj.rand.nextInt(3);
-	        		switch(effectToAdd)
-	        		{
-	        			case 0:
-	        			{
-	        				Class potionsEC3 = Class.forName("ec3.common.registry.PotionRegistry");
-	        				Field corruptionPotion = potionsEC3.getField("mruCorruptionPotion");
-	        				corruptionPotion.setAccessible(true);
-	        				Object potion = corruptionPotion.get(null);
-	        				int currentDuration = 20*30;
-	        				if(p.getActivePotionEffect((Potion) potion) != null)
-	        				{
-	        					currentDuration += p.getActivePotionEffect((Potion) potion).getDuration();
-	        				}
-	        				int amplifier = currentDuration / 1200;
-	        				p.removePotionEffect(p.getActivePotionEffect((Potion) potion).getPotionID());
-	        				p.addPotionEffect(new PotionEffect(((Potion)potion).id,currentDuration,amplifier));
-	        				break;
-	        			}
-	        			case 1:
-	        			{
-	        				Class thaumcraftMainCls = Class.forName("thaumcraft.common.Thaumcraft");
-	        				Method addWarp = thaumcraftMainCls.getMethod("addWarpToPlayer", EntityPlayer.class,int.class,boolean.class);
-	        				addWarp.setAccessible(true);
-	        				addWarp.invoke(null, p,3+p.worldObj.rand.nextInt(5),true);
-	        				break;
-	        			}
-	        			case 2:
-	        			{
-	        				p.addPotionEffect(new PotionEffect(Potion.hunger.id,100,3));
-	        				p.addPotionEffect(new PotionEffect(Potion.wither.id,100,3));
-	        				p.addChatMessage(new ChatComponentText("\u00a75\u00a7o"+StatCollector.translateToLocal("et.effectwither.text")));
-	        				break;
-	        			}
+	        		switch(effectToAdd) {
+	        		case 0: {
+	        			Class potionsEC3 = Class.forName("ec3.common.registry.PotionRegistry");
+	        			Field corruptionPotion = potionsEC3.getField("mruCorruptionPotion");
+	        			corruptionPotion.setAccessible(true);
+	        			Object potion = corruptionPotion.get(null);
+	        			int currentDuration = 20*30;
+	        			if(p.getActivePotionEffect((Potion) potion) != null)
+	        				currentDuration += p.getActivePotionEffect((Potion)potion).getDuration();
+	        			int amplifier = currentDuration / 1200;
+	        			p.removePotionEffect(p.getActivePotionEffect((Potion)potion).getPotionID());
+	        			p.addPotionEffect(new PotionEffect(((Potion)potion).id,currentDuration,amplifier));
+	        			break;
+	        		}
+	        		case 1: {
+	        			Class thaumcraftMainCls = Class.forName("thaumcraft.common.Thaumcraft");
+	        			Method addWarp = thaumcraftMainCls.getMethod("addWarpToPlayer", EntityPlayer.class,int.class,boolean.class);
+	        			addWarp.setAccessible(true);
+	        			addWarp.invoke(null, p,3+p.worldObj.rand.nextInt(5),true);
+	        			break;
+	        		}
+	        		case 2: {
+	        			p.addPotionEffect(new PotionEffect(Potion.hunger.id,100,3));
+	        			p.addPotionEffect(new PotionEffect(Potion.wither.id,100,3));
+	        			p.addChatMessage(new ChatComponentText("\u00a75\u00a7o"+StatCollector.translateToLocal("et.effectwither.text")));
+	        			break;
+	        		}
 	        		}
 	        	}
-			if(!retBool_0)
-	        	{
+	        	if(!retBool_0) {
 	        		ubMRU += mruDrained;
 	        		ECUtils.getData(p).modifyUBMRU(ubMRU);
 	        	}
 	        	return retBool_0;
-	        }else
+	        }
+	        else
 	        	return false;
-		}catch(Exception e)
-		{
+		}
+		catch(Exception e) {
 			return false;
 		}
-	}	
-
+	}
 }

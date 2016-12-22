@@ -19,7 +19,7 @@ import essentialThaumaturgy.common.utils.ETUtils;
 import essentialThaumaturgy.common.utils.cfg.ETCfg;
 import essentialThaumaturgy.common.utils.proxy.CommonProxy;
 
-@Mod(modid = "essenthaum",name = "Essential Thaumaturgy",version = "1.1.1710.0",dependencies = "required-after:Baubles@[1.0.1.10,);after:EssentialCraft@[4.3.1710.112,);after:Thaumcraft@[4.2.2.0,)")
+@Mod(modid = "essenthaum", name = "Essential Thaumaturgy", version = "1.1.1710.13", dependencies = "required-after:Baubles@[1.0.1.10,);after:EssentialCraft@[4.6.1710.63,);after:Thaumcraft@[4.2.3.5,)")
 public class EssentialThaumaturgy {
 	
 	public static EssentialThaumaturgy core = null;
@@ -30,25 +30,22 @@ public class EssentialThaumaturgy {
 	public static CommonProxy proxy;
 	
 	@EventHandler
-	public void preinit(FMLPreInitializationEvent event)
-	{
-		try
-		{
+	public void preinit(FMLPreInitializationEvent event) {
+		try {
 			core = this;
 			ForgeChunkManager.setForcedChunkLoadingCallback(core, ETUtils.getTHObj());
 			NetworkRegistry.INSTANCE.registerGuiHandler(core, proxy);
 			MinecraftForge.EVENT_BUS.register(ETUtils.INSTANCE);
 			Core.registerModAbsolute(getClass(), "Essential Thaumaturgy", event.getModConfigurationDirectory().getAbsolutePath(), cfg);
-		}catch(Exception e)
-		{
+		}
+		catch(Exception e) {
 			e.printStackTrace();
 			return;
 		}
 	}
 	
 	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
+	public void init(FMLInitializationEvent event) {
 
 		ItemsInit.init();
 		BlocksInit.init();
@@ -58,8 +55,7 @@ public class EssentialThaumaturgy {
 	}
 	
 	@EventHandler
-	public void postinit(FMLPostInitializationEvent event)
-	{
+	public void postinit(FMLPostInitializationEvent event) {
 		if(shouldLoadThaumonomicon)
 			ThaumonomiconInit.init();
 		if(shouldLoadEC3)
@@ -69,4 +65,6 @@ public class EssentialThaumaturgy {
 	public static boolean shouldLoadAspects;
 	public static boolean shouldLoadThaumonomicon;
 	public static boolean shouldLoadEC3;
+	
+	public static boolean shouldUseMRUInStorage;
 }

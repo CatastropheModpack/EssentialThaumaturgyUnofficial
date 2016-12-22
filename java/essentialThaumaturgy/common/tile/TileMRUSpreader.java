@@ -16,63 +16,53 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import ec3.api.EnumStructureType;
 import ec3.api.IStructurePiece;
 import ec3.api.ITEHasMRU;
+import ec3.common.item.ItemsCore;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
-public class TileMRUSpreader extends TileHasMRU{
+public class TileMRUSpreader extends TileHasMRU {
 	
 	public List<BlockPosition> devices = new ArrayList();
 	
 	public List<Lightning> lightnings = new ArrayList();
 	
-	public Hashtable<BlockPosition,Lightning> lights = new Hashtable();
+	public Hashtable<BlockPosition, Lightning> lights = new Hashtable();
 	
 	public int refreshTimer;
 	
-	public TileMRUSpreader()
-	{
-		this.setMaxMRU(50000F);
-		this.setSlotsNum(1);
+	public TileMRUSpreader() {
+		setMaxMRU(50000F);
+		setSlotsNum(1);
 	}
 	
-	public void initDevices()
-	{
+	public void initDevices() {
 		lights.clear();
 		devices.clear();
-		for(int dx = -16; dx <= 16; ++dx)
-		{
-			for(int dy = -16; dy <= 16; ++dy)
-			{
-				for(int dz = -16; dz <= 16; ++dz)
-				{
+		for(int dx = -16; dx <= 16; ++dx) {
+			for(int dy = -16; dy <= 16; ++dy) {
+				for(int dz = -16; dz <= 16; ++dz) {
 					TileEntity tile = worldObj.getTileEntity(xCoord+dx, yCoord+dy, zCoord+dz);
-					if(tile != null && tile != this)
-					{
-						try
-						{
+					if(tile != null && tile != this) {
+						try {
 							Class TileecController = Class.forName("ec3.common.tile.TileecController");
-							if(!(tile.getClass().isAssignableFrom(TileecController)))
-							{
-								if((tile instanceof IStructurePiece))
-								{
-									IStructurePiece piece = (IStructurePiece) tile;
-									if(piece.getStructure() != EnumStructureType.MRUCUContaigementChamber)
-									{
+							if(!(tile.getClass().isAssignableFrom(TileecController))) {
+								if((tile instanceof IStructurePiece)) {
+									IStructurePiece piece = (IStructurePiece)tile;
+									if(piece.getStructure() != EnumStructureType.MRUCUContaigementChamber) {
 										if(tile instanceof ITEHasMRU)
 											devices.add(new BlockPosition(worldObj, xCoord+dx, yCoord+dy, zCoord+dz));
 									}
-								}else
-								{
-									if(tile instanceof ITEHasMRU)
-										devices.add(new BlockPosition(worldObj, xCoord+dx, yCoord+dy, zCoord+dz));
 								}
+								else if(tile instanceof ITEHasMRU)
+									devices.add(new BlockPosition(worldObj, xCoord+dx, yCoord+dy, zCoord+dz));
 							}
-						}catch(Exception e)
-						{
+						}
+						catch(Exception e) {
 							e.printStackTrace();
 							return;
 						}
@@ -83,48 +73,42 @@ public class TileMRUSpreader extends TileHasMRU{
 	}
 	
 	@Override
-	public void updateEntity()
-	{
+	public void updateEntity() {
 		super.updateEntity();
-		if(refreshTimer <= 0)
-		{
-			this.initDevices();refreshTimer = 600;
-		}else
-			--refreshTimer;
-		if(this.worldObj.isRemote && this.lightnings.size() <= 20)
-		{
-			Lightning l = new Lightning(this.worldObj.rand, new Coord3D(0.5F, 0.5F, 0.5F), new Coord3D(0.5F+MathUtils.randomFloat(this.worldObj.rand)/2F, 0.5F+MathUtils.randomFloat(this.worldObj.rand)/2F, 0.5F+MathUtils.randomFloat(this.worldObj.rand)/2F), 0.01F, 0.7F, 0.0F, 1.0F);
-			this.lightnings.add(l);
+		if(refreshTimer <= 0) {
+			initDevices();
+			refreshTimer = 600;
 		}
-		for(BlockPosition b : this.devices)
-		{
+		else
+			--refreshTimer;
+		if(worldObj.isRemote && lightnings.size() <= 20) {
+			Lightning l = new Lightning(worldObj.rand, new Coord3D(0.5F, 0.5F, 0.5F), new Coord3D(0.5F+MathUtils.randomFloat(worldObj.rand)/2F, 0.5F+MathUtils.randomFloat(worldObj.rand)/2F, 0.5F+MathUtils.randomFloat(worldObj.rand)/2F), 0.01F, 0.7F, 0.0F, 1.0F);
+			lightnings.add(l);
+		}
+		for(BlockPosition b : devices) {
 			TileEntity tile = b.blockTile;
-			if(tile != null && tile instanceof ITEHasMRU && this.getMRU() > 0)
-			{
+			if(tile != null && tile instanceof ITEHasMRU && getMRU() > 0) {
 				ITEHasMRU storage = (ITEHasMRU) tile;
 				int currentMRU = storage.getMRU();
 				int maxMRU = storage.getMaxMRU();
-				if(currentMRU < maxMRU && this.getMRU()-(maxMRU-currentMRU) >= 0)
-				{
+				if(currentMRU < maxMRU && getMRU() >= maxMRU - currentMRU) {
 					storage.setMRU(maxMRU);
-					this.setMRU(this.getMRU() - (maxMRU-currentMRU));
-					this.mruIn();
-					if(this.worldObj.isRemote)
-					{
-						Lightning l = new Lightning(this.worldObj.rand,new Coord3D(0.5F, 0.5F, 0.5F),new Coord3D(tile.xCoord-this.xCoord+0.5F, tile.yCoord-this.yCoord+0.5F, tile.zCoord-this.zCoord+0.5F),0.1F,1,0,1);
+					setMRU(getMRU() - (maxMRU-currentMRU));
+					mruIn();
+					if(worldObj.isRemote) {
+						Lightning l = new Lightning(worldObj.rand,new Coord3D(0.5F, 0.5F, 0.5F),new Coord3D(tile.xCoord-xCoord+0.5F, tile.yCoord-yCoord+0.5F, tile.zCoord-zCoord+0.5F),0.1F,1,0,1);
 						if(!lights.containsKey(b))
-							this.lights.put(b, l);
+							lights.put(b, l);
 					}
-				}else if(currentMRU < maxMRU)
-				{
-					storage.setMRU(currentMRU + this.getMRU());
-					this.setMRU(0);
-					this.mruIn();
-					if(this.worldObj.isRemote)
-					{
-						Lightning l = new Lightning(this.worldObj.rand,new Coord3D(0.5F, 0.5F, 0.5F),new Coord3D(tile.xCoord-this.xCoord+0.5F, tile.yCoord-this.yCoord+0.5F, tile.zCoord-this.zCoord+0.5F),0.1F,1,0,1);
+				}
+				else if(currentMRU < maxMRU) {
+					storage.setMRU(currentMRU + getMRU());
+					setMRU(0);
+					mruIn();
+					if(worldObj.isRemote) {
+						Lightning l = new Lightning(worldObj.rand,new Coord3D(0.5F, 0.5F, 0.5F),new Coord3D(tile.xCoord-xCoord+0.5F, tile.yCoord-yCoord+0.5F, tile.zCoord-zCoord+0.5F),0.1F,1,0,1);
 						if(!lights.containsKey(b))
-							this.lights.put(b, l);
+							lights.put(b, l);
 					}
 				}
 			}
@@ -133,13 +117,17 @@ public class TileMRUSpreader extends TileHasMRU{
 				lights.remove(b);
 		}
 		
-		if(this.worldObj.isRemote)
-			for(int i = 0; i < lightnings.size(); ++i)
-			{
+		if(worldObj.isRemote) {
+			for(int i = 0; i < lightnings.size(); ++i) {
 				Lightning lt = lightnings.get(i);
 				if(lt.renderTicksExisted >= 21)
-					this.lightnings.remove(i);
+					lightnings.remove(i);
 			}
+		}
 	}
 	
+	@Override
+	public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
+		return isBoundGem(p_94041_2_);
+	}
 }

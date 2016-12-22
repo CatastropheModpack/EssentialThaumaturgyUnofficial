@@ -89,7 +89,7 @@ public class ItemFocusMRULight extends ItemFocusBasic{
 		        	for(int i = 0; i < player.inventory.getSizeInventory(); ++i)
 		        	{
 		        		ItemStack stk = player.inventory.getStackInSlot(i);
-		        		if(stk != null && stk.getItem() == getIS("item:magicalSlag",0).getItem())
+		        		if(stk != null && stk.isItemEqual(getIS("item:magicalSlag",0)))
 		        		{
 		        			slotID = i;
 		        			break;

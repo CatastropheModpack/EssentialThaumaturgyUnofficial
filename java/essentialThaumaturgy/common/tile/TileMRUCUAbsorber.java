@@ -12,6 +12,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import ec3.api.ApiCore;
 import ec3.api.IMRUPressence;
+import ec3.common.item.ItemsCore;
 import essentialThaumaturgy.common.init.AspectsInit;
 import essentialThaumaturgy.common.utils.ETUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,71 +27,69 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aspects.IEssentiaTransport;
 
-public class TileMRUCUAbsorber extends TileHasMRUAndAspects{
+public class TileMRUCUAbsorber extends TileHasMRUAndAspects {
 	
 	public float extension;
+	public int time;
 	
 	public IMRUPressence mrucu;
 	
-	public int getRotation()
-	{
-		return this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
+	public int getRotation() {
+		return worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 	}
 	
-	public IMRUPressence getMRUCU()
-	{
-		if(mrucu == null) mrucu = ApiCore.getClosestMRUCU(worldObj, new Coord3D(xCoord,yCoord,zCoord), 8);
+	public IMRUPressence getMRUCU() {
+		if(mrucu == null)
+			mrucu = ApiCore.getClosestMRUCU(worldObj, new Coord3D(xCoord, yCoord, zCoord), 8);
 		return mrucu;
 	}
 	
-	public TileMRUCUAbsorber()
-	{
-		this.setMaxMRU(5000F);
-		this.setSlotsNum(1);
+	public TileMRUCUAbsorber() {
+		setMaxMRU(5000F);
+		setSlotsNum(1);
 	}
 	
 	@Override
 	public boolean isConnectable(ForgeDirection face) {
-		return face.ordinal() != this.getRotation();
+		return face.ordinal() != getRotation();
 	}
 	
 	
 	@Override
-	public void updateEntity()
-	{
-		if(this.getAspects().getAmount(AspectsInit.MRU) == 0)
-		{
-			this.aspects.remove(AspectsInit.MRU);
-		}
-		if(getMRUCU() != null && this.extension < 1.0F && this.getMRU() > 0)
-			this.extension += 0.03F;
-		else if(this.getMRUCU() == null && this.extension > 0F)
-			this.extension -= 0.03F;
+	public void updateEntity() {
+		if(getAspects().getAmount(AspectsInit.MRU) == 0)
+			aspects.remove(AspectsInit.MRU);
+		if(getMRUCU() != null && extension < 1.0F && getMRU() > 0)
+			extension += 0.03F;
+		else if(getMRUCU() == null && extension > 0F)
+			extension -= 0.03F;
 		super.updateEntity();
 		
-		if(this.getMRUCU() != null)
-		{
-			IMRUPressence mrucu = this.getMRUCU();
-			this.setBalance(mrucu.getBalance());
-			if(mrucu.getMRU() > 1000 && this.worldObj.getWorldTime()%20 == 0)
-			{
-				int amount = this.getAspects().getAmount(AspectsInit.MRU);
-				if(amount <= 63)
-				{
-					if(this.getMRU() >= 30 && this.worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
-					{
-						this.setMRU(this.getMRU()-30*20);
-						if(this.worldObj.getWorldTime()%20 == 0)
-							mrucu.setMRU(mrucu.getMRU()-100);
-						if(this.worldObj.getWorldTime()%200 == 0)
-							this.addToContainer(AspectsInit.MRU, 1);
+		if(getMRUCU() != null) {
+			IMRUPressence mrucu = getMRUCU();
+			setBalance(mrucu.getBalance());
+			if(mrucu.getMRU() > 20 && worldObj.getWorldTime()%20 == 0) {
+				int amount = getAspects().getAmount(AspectsInit.MRU);
+				if(amount < 64) {
+					if(getMRU() >= 30 && worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord)) {
+						setMRU(getMRU() - 30);
+						
+						if(worldObj.getWorldTime()%20 == 0) {
+							mrucu.setMRU(mrucu.getMRU() - 100);
+							time++;
+						}
+						if(worldObj.getWorldTime()%200 == 0 && time == 10) {
+							addToContainer(AspectsInit.MRU, 1);
+							time = 0;
+						}
 					}
 				}
 			}
 		}
-		
 	}
-
 	
-	
+	@Override
+	public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
+		return isBoundGem(p_94041_2_);
+	}
 }

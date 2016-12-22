@@ -72,7 +72,7 @@ public class ItemFocusMRUSanitiser extends ItemFocusBasic{
 	@Override
 	public ItemStack onFocusRightClick(ItemStack itemstack, World world,
 			EntityPlayer player, MovingObjectPosition movingobjectposition) {
-		player.setItemInUse(itemstack, 0x7fffffff);
+		player.setItemInUse(itemstack, Integer.MAX_VALUE);
 		return itemstack;
 	}
     
